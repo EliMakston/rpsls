@@ -7,7 +7,7 @@ let userId = null;
 
 async function newUserRequest(event) {
     event.preventDefault();
-    if (!userId) {
+    if (userId === null) {
         const formData = Object.fromEntries(new FormData(event.target).entries());
         const response = await fetch('/newUser',  {
             method: 'POST'
