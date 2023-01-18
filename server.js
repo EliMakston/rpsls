@@ -6,13 +6,15 @@ const PORT = 4000;
 
 app.use(morgan('tiny'));
 
+app.use(express.static('public'));
+
 class User {
     constructor(id) {
         this._id = id;
         this.choice = undefined;
         this.hasChosen = false;
     }
-}
+};
 
 const userList = [];
 
@@ -25,4 +27,8 @@ app.post('/newUser', (req, res, next) => {
     userList.push(newUser);
     console.log(userList);
     res.status(201).send(userList[userList.length - 1]);
+});
+
+app.get('/', (req, res, next) => {
+    res.sendFile('client.html', {root: __dirname });
 });
