@@ -27,12 +27,14 @@ app.post('/newUser', (req, res, next) => {
     const newUser = new User(userList.length);
     userList.push(newUser);
     console.log(userList);
-    res.status(201).send(userList[userList.length - 1]);
+    res.status(201).send(newUser);
 });
 
 app.post('/choice', (req, res, next) => {
     const userId = req.body.userId;
     const choice = req.body.choice;
+    userList[userId].choice = choice;
+    res.status(200).send(userList[userId]);
 })
 
 app.get('/', (req, res, next) => {
