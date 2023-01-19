@@ -5,6 +5,8 @@ const usersButton = document.getElementById("get-users");
 const htmlRepsonse = document.getElementById("users-response");
 const usersDiv = document.getElementById("users");
 let playButton;
+let searchingForPlayer = false;
+let inMatch = false;
 
 newUserButton.addEventListener("click", newUserRequest);
 choiceForm.addEventListener("submit", sendUserChoice);
@@ -30,6 +32,8 @@ async function newUserRequest(event) {
     } else {
         log.textContent = `User already created. User id: ${userId}`;
     };
+    searchingForPlayer = true;
+    //consistentGetUsers(event);
 };
 
 async function sendUserChoice(event) {
@@ -82,11 +86,40 @@ async function matchWithUser(event) {
         },
     });
     console.log(`Matching with player...`);
+    searchingForPlayer = false;
+    log.textContent = `Match made`
 }
 
 async function playMatch(event) {
     event.preventDefault();
+    inMatch = true;
     console.log(`Playing match against player`);
+    while (inMatch) {
+        await getMove(event);
+        inMatch = false;
+    }
+    const responseObject = await response.json();
+    log.textContent = `${response.id}`;
+    await getMove(event);
 }
 
-//TODO See if while loops can be used to continuously update a list of a site
+async function getMove(event) {
+    let waitingForMove = true;
+    while (waitingForMove) {
+        const response = await fetch(`/opponentChoice/${userId}`);
+        if (response.ok) {
+            const responseObject = await response.json();
+            log.textContent = `Received from server: ` + responseObject.choice;
+            waitingForMove = false;
+        } else {
+            log.textContent = `Something went wrong`;
+            waitingForMove = false;
+        }
+    }
+}
+
+async function consistentGetUsers(event) {
+    while (searchingForPlayer) {
+        setTimeout(await getAllUsers(event), 3000);
+    }
+}
