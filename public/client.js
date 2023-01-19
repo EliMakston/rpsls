@@ -1,22 +1,24 @@
-const newUserForm = document.getElementById("new-user-form");
+const newUserButton = document.getElementById("new-user-button");
 const log = document.getElementById("log");
 const choiceForm = document.getElementById("choice-form");
+const usersButton = document.getElementById("get-users");
+const htmlRepsonse = document.getElementById("users-response");
 
-newUserForm.addEventListener("submit", newUserRequest);
+newUserButton.addEventListener("click", newUserRequest);
 choiceForm.addEventListener("submit", sendUserChoice);
+usersButton.addEventListener("click", getAllUsers);
 
 let userId = null;
 
 async function newUserRequest(event) {
     event.preventDefault();
     if (userId === null) {
-        const formData = Object.fromEntries(new FormData(event.target).entries());
         const response = await fetch('/newUser',  {
             method: 'POST'
         });
         if (response.ok) {
             const responseObject = await response.json();
-            userId = responseObject._id;
+            userId = responseObject.id;
             log.textContent = `New user created. User id: ${userId}`;
         }
     } else {
@@ -41,4 +43,15 @@ async function sendUserChoice(event) {
     } else {
         log.textContent = `Your choice was not succesful`;
     }
+}
+
+async function getAllUsers(event) {
+    event.preventDefault();
+    const response = await fetch('/users');
+    const responseObject = await response.json();
+    let string = '';
+    for (let i = 0; i < responseObject.length; i++) {
+        string += `User- ID: ${responseObject[i].id}<br>`;
+    }
+    htmlRepsonse.innerHTML = string;
 }

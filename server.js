@@ -11,7 +11,7 @@ app.use(express.static('public'));
 
 class User {
     constructor(id) {
-        this._id = id;
+        this.id = id;
         this.choice = undefined;
         this.hasChosen = false;
     }
@@ -29,6 +29,10 @@ app.post('/newUser', (req, res, next) => {
     console.log(userList);
     res.status(201).send(newUser);
 });
+
+app.get('/users', (req, res, next) => {
+    res.status(200).send(userList);
+})
 
 app.post('/choice', (req, res, next) => {
     console.log(req.body);
