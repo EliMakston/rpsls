@@ -33,7 +33,7 @@ async function newUserRequest(event) {
         log.textContent = `User already created. User id: ${userId}`;
     };
     searchingForPlayer = true;
-    //consistentGetUsers(event);
+    consistentGetUsers(event);
 };
 
 async function sendUserChoice(event) {
@@ -89,6 +89,7 @@ async function matchWithUser(event) {
         const responseObject = await response.json();
         log.textContent = `Match has been made. Match ID: ${responseObject.id}`;
         searchingForPlayer = false;
+        playMatch(event);
     } else {
         log.textContent = `Matchmaking failed`;
     }
@@ -111,7 +112,7 @@ async function getMove(event) {
         const response = await fetch(`/opponentChoice/${userId}`);
         if (response.ok) {
             const responseObject = await response.json();
-            log.textContent = `Received from server: ` + responseObject.choice;
+            log.textContent = `Received from server: ${responseObject.choice}`;
             waitingForMove = false;
         } else {
             log.textContent = `Something went wrong`;
@@ -123,5 +124,19 @@ async function getMove(event) {
 async function consistentGetUsers(event) {
     while (searchingForPlayer) {
         setTimeout(await getAllUsers(event), 3000);
+        const checkMatch = await fetch('/matches');
+        if (checkMatch.ok) {
+            console.log('Recieved matches');
+            const matchObject = await checkMatch.json();
+            console.log(matchObject)
+            for (let i = 0; i < matchObject.length; i++) {
+                console.log(matchObject[i]);
+                if (matchObject[i].opponent === userId) {
+                    log.textContent = `Match has been made. Match ID: ${matchObject.id}`;
+                    searchingForPlayer = false;
+                    playMatch(event);
+                }
+            }
+        }
     }
 }

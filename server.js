@@ -29,8 +29,6 @@ class Match {
 function checkMatches(req, res, next) {
     const newHost = req.body.host;
     const newOpponent = Number(req.body.opponent);
-    console.log(newHost)
-    console.log(newOpponent)
     let sendMatch = true;
     for (let i = 0; i < matchList.length; i++) {
         if (newHost === matchList[i].host || newHost === matchList[i].opponent) {
@@ -75,29 +73,31 @@ app.post('/choice', (req, res, next) => {
 });
 
 app.post('/newMatch', checkMatches, (req, res, next) => {
-    console.log(req.hostID);
-    console.log(req.opponent);
     const newMatch = new Match(matchList.length, req.hostID, req.opponent);
     matchList.push(newMatch);
-    console.log(matchList);
-    console.log(newMatch);
     res.status(201).send(newMatch);
 });
+
+app.get('/matches', (req, res, next) => {
+    res.status(200).send(matchList);
+})
 
 app.get('/opponentChoice/:id', (req, res, next) => {
     let opponentId;
     const currentUserId = Number(req.params.id);
-    console.log(currentUserId);
-    console.log(matchList);
     for (let i = 0; i < matchList.length; i++) {
-        console.log(matchList[i]);
-        console.log(matchList[i].host);
         if (matchList[i].host === currentUserId) {
             opponentId = matchList[i].opponent;
+        } else if (matchList[i].opponent === currentUserId) {
+            opponentId = matchList[i].host;
         }
     }
-    console.log(userList[opponentId]);
-    res.status(200).send(userList[opponentId]);
+    const opponentData = userList[opponentId];
+    if (opponentData.choice) {
+        res.status(200).send(userList[opponentId]);
+    } else {
+        res.status(404).send();
+    }
 })
 
 app.get('/', (req, res, next) => {
