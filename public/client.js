@@ -73,21 +73,25 @@ async function getAllUsers(event) {
 }
 
 async function matchWithUser(event) {
-    event.preventDefault();
+    console.log(`Matching with player...`);
     const bodyData = {
         host: userId,
         opponent: event.target.id
     }
-    const response = fetch('/newMatch',  {
+    const response = await fetch('/newMatch',  {
         method: 'POST',
         body: JSON.stringify(bodyData),
         headers: {
             "Content-Type": "application/json",
         },
     });
-    console.log(`Matching with player...`);
-    searchingForPlayer = false;
-    log.textContent = `Match made`
+    if (response.ok) {
+        const responseObject = await response.json();
+        log.textContent = `Match has been made. Match ID: ${responseObject.id}`;
+        searchingForPlayer = false;
+    } else {
+        log.textContent = `Matchmaking failed`;
+    }
 }
 
 async function playMatch(event) {
@@ -98,8 +102,6 @@ async function playMatch(event) {
         await getMove(event);
         inMatch = false;
     }
-    const responseObject = await response.json();
-    log.textContent = `${response.id}`;
     await getMove(event);
 }
 
