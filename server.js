@@ -31,6 +31,7 @@ app.post('/newUser', (req, res, next) => {
 });
 
 app.post('/choice', (req, res, next) => {
+    console.log(req.body);
     const userId = req.body.userId;
     const choice = req.body.choice;
     userList[userId].choice = choice;
