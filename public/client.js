@@ -5,19 +5,30 @@ const usersButton = document.getElementById("get-users");
 const htmlRepsonse = document.getElementById("users-response");
 const usersDiv = document.getElementById("users");
 const requestDiv = document.getElementById("request-holder");
+const requestBigDiv = document.getElementById("match-request");
 let playButton;
 let matchButton;
 let searchingForPlayer = false;
 let inMatch = false;
+let receivingRequests = false;
+let waitingForMatch = false;
 
 newUserButton.addEventListener("click", newUserRequest);
 choiceForm.addEventListener("submit", sendUserChoice);
 usersButton.addEventListener("click", getAllUsers);
 usersDiv.addEventListener( 'click', function ( event ) {
     if(event.target.className === 'play') {
-      matchWithUser(event);
+        waitingForMatch = true;
+        matchWithUser(event);
     };
 });
+
+requestBigDiv.addEventListener( 'click', function ( event ) {
+    if(event.target.className === 'match') {
+      getMatchFromRequest(event);
+    };
+});
+
 let userId = null;
 
 async function newUserRequest(event) {
@@ -35,6 +46,7 @@ async function newUserRequest(event) {
         log.textContent = `User already created. User id: ${userId}`;
     };
     searchingForPlayer = true;
+    receivingRequests = true;
     consistentGetUsers(event);
 };
 
@@ -91,8 +103,10 @@ async function matchWithUser(event) {
         const responseObject = await response.json();
         log.textContent = `Request has been made. Request ID: ${responseObject.id}, against User ${responseObject.opponent}`;
         searchingForPlayer = false;
+        receivingRequests = false;
         htmlRepsonse.innerHTML = '';
-        //playMatch(event);
+        waitingForMatch = true;
+        waitingForMatchFunction(event);
     } else {
         log.textContent = `Matchmaking failed`;
     }
@@ -141,9 +155,67 @@ async function getAllRequests(event) {
         }
 }
 
+async function checkAllMatches(event) {
+    const checkMatch = await fetch('/matches');
+    if (checkMatch.ok) {
+        console.log('Recieved matches');
+        const matchObject = await checkMatch.json();
+        console.log(matchObject)
+        for (let i = 0; i < matchObject.length; i++) {
+            console.log(matchObject[i]);
+            if (matchObject[i].opponent === userId) {
+                requestBigDiv.innerHTML = ``;
+                log.textContent = `You are now in a match with User ID: ${matchObject[i].host}`
+                waitingForMatch = false;
+                }
+            }
+        }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function consistentGetUsers(event) {
     while (searchingForPlayer) {
-        setTimeout(await getAllUsers(event), 3000);
-        setTimeout(await getAllRequests(event), 3000);
+        await sleep(3000);
+        await getAllUsers(event);
+        await getAllRequests(event);
+    }
+    while (receivingRequests) {
+        await sleep(3000);
+        await getAllRequests(event);
+    }
+}
+
+async function waitingForMatchFunction(event) {
+    while(waitingForMatch) {
+        await sleep(3000);
+        checkAllMatches(event);
+    }
+}
+
+async function getMatchFromRequest(event) {
+    console.log(`Creating match with player...`);
+    const OpponentID = event.target.id;
+    const OpponentIDParsed = OpponentID.toString().substr(0, OpponentID.length-2);
+    const bodyData = {
+        host: userId,
+        opponent: OpponentIDParsed
+    }
+    const response = await fetch('/newMatch',  {
+        method: 'POST',
+        body: JSON.stringify(bodyData),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    if (response.ok) {
+        const responseObject = await response.json();
+        log.textContent = `Match has been made. Match ID: ${responseObject.id}, against User ${responseObject.opponent}`;
+        searchingForPlayer = false;
+        htmlRepsonse.innerHTML = '';
+    } else {
+        log.textContent = `Matchmaking failed`;
     }
 }
