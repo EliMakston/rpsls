@@ -15,7 +15,6 @@ let waitingForMatch = false;
 
 newUserButton.addEventListener("click", newUserRequest);
 choiceForm.addEventListener("submit", sendUserChoice);
-usersButton.addEventListener("click", getAllUsers);
 usersDiv.addEventListener( 'click', function ( event ) {
     if(event.target.className === 'play') {
         waitingForMatch = true;
@@ -105,6 +104,7 @@ async function matchWithUser(event) {
         searchingForPlayer = false;
         receivingRequests = false;
         htmlRepsonse.innerHTML = '';
+        usersDiv.innerHTML = '';
         waitingForMatch = true;
         waitingForMatchFunction(event);
     } else {
@@ -165,7 +165,8 @@ async function checkAllMatches(event) {
             console.log(matchObject[i]);
             if (matchObject[i].opponent === userId) {
                 requestBigDiv.innerHTML = ``;
-                log.textContent = `You are now in a match with User ID: ${matchObject[i].host}`
+                log.textContent = `You are now in a match with User ID: ${matchObject[i].host}`;
+                usersDiv.innerHTML = ``;
                 waitingForMatch = false;
                 }
             }
@@ -215,6 +216,9 @@ async function getMatchFromRequest(event) {
         log.textContent = `Match has been made. Match ID: ${responseObject.id}, against User ${responseObject.opponent}`;
         searchingForPlayer = false;
         htmlRepsonse.innerHTML = '';
+        usersDiv.innerHTML = ``;
+        receivingRequests = false;
+        requestBigDiv.innerHTML = ``;
     } else {
         log.textContent = `Matchmaking failed`;
     }

@@ -3,7 +3,7 @@ const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
-const PORT = 3000;
+const PORT = 4000;
 
 app.use(morgan('tiny'));
 app.use(bodyParser.json());
