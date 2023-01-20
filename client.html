@@ -10,13 +10,21 @@
     <div id="choice-div">
         <form id="choice-form">
             <label for="choice">User choice</label>
-            <input type="text" id="choice" name="choice">
+            <select name="choice" id="choice">
+                <option value="Rock">Rock</option>
+                <option value="Paper">Paper</option>
+                <option value="Scissors">Scissors</option>
+                <option value="Lizard">Lizard</option>
+                <option value="Spock">Spock</option>
             <input type="submit">
         </form>
     </div>
     <div id="users">
-        <button id="get-users">Get Available Users</button>
         <div id="users-response"></div>
+    </div>
+    <div id="match-request">
+        <h1>Requests:</h1>
+        <div id="request-holder"></div>
     </div>
     <script src="/client.js"></script>
 </html>

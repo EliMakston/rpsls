@@ -4,18 +4,31 @@ const choiceForm = document.getElementById("choice-form");
 const usersButton = document.getElementById("get-users");
 const htmlRepsonse = document.getElementById("users-response");
 const usersDiv = document.getElementById("users");
+const requestDiv = document.getElementById("request-holder");
+const requestBigDiv = document.getElementById("match-request");
 let playButton;
+let matchButton;
 let searchingForPlayer = false;
 let inMatch = false;
+let receivingRequests = false;
+let waitingForMatch = false;
+let waitingForMove = false;
 
 newUserButton.addEventListener("click", newUserRequest);
 choiceForm.addEventListener("submit", sendUserChoice);
-usersButton.addEventListener("click", getAllUsers);
-usersDiv.addEventListener( 'click', function ( event ) {
+usersDiv.addEventListener('click', function ( event ) {
     if(event.target.className === 'play') {
-      matchWithUser(event);
+        waitingForMatch = true;
+        matchWithUser(event);
     };
 });
+
+requestBigDiv.addEventListener( 'click', function ( event ) {
+    if(event.target.className === 'match') {
+      getMatchFromRequest(event);
+    };
+});
+
 let userId = null;
 
 async function newUserRequest(event) {
@@ -33,6 +46,7 @@ async function newUserRequest(event) {
         log.textContent = `User already created. User id: ${userId}`;
     };
     searchingForPlayer = true;
+    receivingRequests = true;
     consistentGetUsers(event);
 };
 
@@ -51,6 +65,9 @@ async function sendUserChoice(event) {
     if (response.ok) {
         const responseObject = await response.json();
         log.textContent = `Your choice was succesful: ${responseObject.choice}`;
+        waitingForMove = true;
+        playMatch(event);
+
     } else {
         log.textContent = `Your choice was not succesful`;
     }
@@ -78,6 +95,120 @@ async function matchWithUser(event) {
         host: userId,
         opponent: event.target.id
     }
+    const response = await fetch('/newRequest',  {
+        method: 'POST',
+        body: JSON.stringify(bodyData),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    if (response.ok) {
+        const responseObject = await response.json();
+        log.textContent = `Request has been made. Request ID: ${responseObject.id}, against User ${responseObject.opponent}`;
+        searchingForPlayer = false;
+        receivingRequests = false;
+        htmlRepsonse.innerHTML = '';
+        usersDiv.innerHTML = '';
+        waitingForMatch = true;
+        waitingForMatchFunction(event);
+    } else {
+        log.textContent = `Matchmaking failed`;
+    }
+}
+
+async function playMatch(event) {
+    console.log(`Playing match against player`);
+    while (waitingForMove) {
+        await sleep(3000)
+        await getMove(event);
+        await winOrLose(userId);
+        inMatch = false;
+    }
+}
+
+async function getMove(event) {
+    let waitingForMove = true;
+    while (waitingForMove) {
+        await sleep(3000);
+        const response = await fetch(`/opponentChoice/${userId}`);
+        if (response.ok) {
+            const responseObject = await response.json();
+            log.textContent = `Received from server: ${responseObject.choice}`;
+            waitingForMove = false;
+        }
+    }
+};
+
+async function getAllRequests(event) {
+    const checkMatch = await fetch('/requests');
+    if (checkMatch.ok) {
+        console.log('Recieved requesets');
+        const matchObject = await checkMatch.json();
+        console.log(matchObject)
+        for (let i = 0; i < matchObject.length; i++) {
+            console.log(matchObject[i]);
+            if (matchObject[i].opponent === userId) {
+                requestDiv.innerHTML = `<p>You have a new request: from User ${matchObject[i].host}<button id=${matchObject[i].host}0 class='match'>Match</button></p>`;
+                searchingForPlayer = false;
+                matchButton = document.getElementsByClassName("match");
+                }
+            }
+        }
+}
+
+async function checkAllMatches(event) {
+    const checkMatch = await fetch('/matches');
+    if (checkMatch.ok) {
+        console.log('Recieved matches');
+        const matchObject = await checkMatch.json();
+        console.log(matchObject)
+        for (let i = 0; i < matchObject.length; i++) {
+            console.log(matchObject[i]);
+            if (matchObject[i].opponent === userId) {
+                requestBigDiv.innerHTML = ``;
+                log.textContent = `You are now in a match with User ID: ${matchObject[i].host}`;
+                inMatch = true;
+                playMatch(event);
+                usersDiv.innerHTML = ``;
+                waitingForMatch = false;
+                }
+            }
+        }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function consistentGetUsers(event) {
+    while (searchingForPlayer) {
+        await sleep(3000);
+        await getAllUsers(event);
+        await getAllRequests(event);
+    }
+    while (receivingRequests) {
+        await sleep(3000);
+        await getAllRequests(event);
+    }
+}
+
+async function waitingForMatchFunction(event) {
+    while(waitingForMatch) {
+        await sleep(3000);
+        checkAllMatches(event);
+    }
+}
+
+async function getMatchFromRequest(event) {
+    console.log(`Creating match with player...`);
+    const OpponentID = event.target.id;
+    const OpponentIDParsed = OpponentID.toString().substr(0, OpponentID.length-1);
+    console.log(OpponentID);
+    console.log(OpponentIDParsed)
+    const bodyData = {
+        host: userId,
+        opponent: OpponentIDParsed
+    }
     const response = await fetch('/newMatch',  {
         method: 'POST',
         body: JSON.stringify(bodyData),
@@ -87,56 +218,19 @@ async function matchWithUser(event) {
     });
     if (response.ok) {
         const responseObject = await response.json();
-        log.textContent = `Match has been made. Match ID: ${responseObject.id}`;
+        log.textContent = `Match has been made. Match ID: ${responseObject.id}, against User ${responseObject.opponent}`;
         searchingForPlayer = false;
+        htmlRepsonse.innerHTML = '';
+        usersDiv.innerHTML = ``;
+        receivingRequests = false;
+        requestBigDiv.innerHTML = ``;
+        inMatch = true;
         playMatch(event);
     } else {
         log.textContent = `Matchmaking failed`;
     }
 }
 
-async function playMatch(event) {
-    event.preventDefault();
-    inMatch = true;
-    console.log(`Playing match against player`);
-    while (inMatch) {
-        await getMove(event);
-        inMatch = false;
-    }
-    await getMove(event);
-}
-
-async function getMove(event) {
-    let waitingForMove = true;
-    while (waitingForMove) {
-        const response = await fetch(`/opponentChoice/${userId}`);
-        if (response.ok) {
-            const responseObject = await response.json();
-            log.textContent = `Received from server: ${responseObject.choice}`;
-            waitingForMove = false;
-        } else {
-            log.textContent = `Something went wrong`;
-            waitingForMove = false;
-        }
-    }
-}
-
-async function consistentGetUsers(event) {
-    while (searchingForPlayer) {
-        setTimeout(await getAllUsers(event), 3000);
-        const checkMatch = await fetch('/matches');
-        if (checkMatch.ok) {
-            console.log('Recieved matches');
-            const matchObject = await checkMatch.json();
-            console.log(matchObject)
-            for (let i = 0; i < matchObject.length; i++) {
-                console.log(matchObject[i]);
-                if (matchObject[i].opponent === userId) {
-                    log.textContent = `Match has been made. Match ID: ${matchObject.id}`;
-                    searchingForPlayer = false;
-                    playMatch(event);
-                }
-            }
-        }
-    }
+async function winOrLose(playerId) {
+    console.log(playerId);
 }
