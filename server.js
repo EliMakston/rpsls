@@ -25,6 +25,14 @@ class Match {
     }
 }
 
+class Request {
+    constructor(id, host, opponent) {
+        this.host = host;
+        this.opponent = opponent;
+        this.id = id;
+    }
+}
+
 //TODO check if player is already in match (always false, find why)
 function checkMatches(req, res, next) {
     const newHost = req.body.host;
@@ -50,6 +58,7 @@ function checkMatches(req, res, next) {
 
 const userList = [];
 const matchList = [];
+const requestList = [];
 
 app.listen(PORT, () => {
     console.log(`Now listening on port ${PORT}`);
@@ -98,6 +107,16 @@ app.get('/opponentChoice/:id', (req, res, next) => {
     } else {
         res.status(404).send();
     }
+});
+
+app.post('/newRequest', checkMatches, (req, res, next) => {
+    const newRequest = new Request(requestList.length, req.hostID, req.opponent);
+    requestList.push(newRequest);
+    res.status(201).send(newRequest);
+});
+
+app.get('/requests', (req, res, next) => {
+    res.status(200).send(requestList);
 })
 
 app.get('/', (req, res, next) => {
