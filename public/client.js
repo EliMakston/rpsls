@@ -1,12 +1,12 @@
 //Grab all necessary objects from the document
-const newUserButton = document.getElementById("new-user-button");
-const log = document.getElementById("log");
-const choiceForm = document.getElementById("choice-form");
-const usersButton = document.getElementById("get-users");
-const htmlRepsonse = document.getElementById("users-response");
-const usersDiv = document.getElementById("users");
-const requestDiv = document.getElementById("request-holder");
-const requestBigDiv = document.getElementById("match-request");
+let newUserButton = document.getElementById("new-user-button");
+let log = document.getElementById("log");
+let choiceForm = document.getElementById("choice-form");
+let usersButton = document.getElementById("get-users");
+let htmlRepsonse = document.getElementById("users-response");
+let usersDiv = document.getElementById("users");
+let requestDiv = document.getElementById("request-holder");
+let requestBigDiv = document.getElementById("match-request");
 const mainHTML = document.getElementById("main");
 
 //Get the default state of the page
@@ -162,10 +162,8 @@ async function getAllRequests(event) {
     if (checkMatch.ok) {
         console.log('Recieved requesets');
         const matchObject = await checkMatch.json();
-        console.log(matchObject);
         string = '';
         for (let i = 0; i < matchObject.length; i++) {
-            console.log(matchObject[i]);
             if (matchObject[i].opponent === userId) {
                 string += `<p>You have a new request: from User ${matchObject[i].host}<button id=${matchObject[i].host}0 class='match'>Match</button></p><br>`;
                 matchButton = document.getElementsByClassName("match");
@@ -181,9 +179,7 @@ async function checkAllMatches(event) {
     if (checkMatch.ok) {
         console.log('Recieved matches');
         const matchObject = await checkMatch.json();
-        console.log(matchObject)
         for (let i = 0; i < matchObject.length; i++) {
-            console.log(matchObject[i]);
             if (matchObject[i].opponent === userId) {
                 requestBigDiv.innerHTML = ``;
                 log.textContent = `You are now in a match with User ID: ${matchObject[i].host}`;
@@ -214,8 +210,6 @@ async function getMatchFromRequest(event) {
     searchingForPlayer = false;
     const OpponentID = event.target.id;
     const OpponentIDParsed = OpponentID.toString().substr(0, OpponentID.length-1);
-    console.log(OpponentID);
-    console.log(OpponentIDParsed)
     const bodyData = {
         host: userId,
         opponent: OpponentIDParsed
@@ -245,6 +239,14 @@ async function returnToDefault(event) {
     mainHTML.innerHTML = defaultHTML;
     searchingForPlayer = true;
     receivingRequests = true;
+    newUserButton = document.getElementById("new-user-button");
+    log = document.getElementById("log");
+    choiceForm = document.getElementById("choice-form");
+    usersButton = document.getElementById("get-users");
+    htmlRepsonse = document.getElementById("users-response");
+    usersDiv = document.getElementById("users");
+    requestDiv = document.getElementById("request-holder");
+    requestBigDiv = document.getElementById("match-request");
 };
 
 //get all updates every 3 seconds (could be faster, but for safety, 3 is cap)
