@@ -128,6 +128,7 @@ app.post('/newRequest', checkMatches, (req, res, next) => {
     }
     const newRequest = new Request(newRequestID, req.hostID, req.opponent);
     requestList.splice(newRequestID, 0, newRequest);
+    console.log(requestList);
     res.status(201).send(newRequest);
 });
 
@@ -201,6 +202,19 @@ app.get('/winOrLose/:id', (req, res, next) => {
     } else {
         res.status(400).send(`Something failed`);
     }
+});
+
+app.delete('/requests/:Opponentid', (req, res, next) => {
+    const OpponentId = Number(req.params.Opponentid);
+    let index;
+    for (let i = 0; i < requestList.length; i++) {
+        if (requestList[i].opponent === OpponentId) {
+            index = requestList.id;
+        }
+    }
+    requestList.splice(index, 1);
+    console.log(requestList);
+    res.status(204).send();
 });
 
 app.get('/', (req, res, next) => {

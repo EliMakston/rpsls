@@ -210,6 +210,9 @@ async function getMatchFromRequest(event) {
     searchingForPlayer = false;
     const OpponentID = event.target.id;
     const OpponentIDParsed = OpponentID.toString().substr(0, OpponentID.length-1);
+    await fetch(`/requests/${OpponentIDParsed}`, {
+        method: 'DELETE'
+    });
     const bodyData = {
         host: userId,
         opponent: OpponentIDParsed
