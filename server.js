@@ -14,6 +14,17 @@ class User {
         this.id = id;
         this.choice = undefined;
         this.hasChosen = false;
+        this.key = undefined;
+    }
+    generateNewKey() {
+        const keyLength = 10;
+        const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+        let key = '';
+        for (let i = 0; i < keyLength; i++) {
+            const rand = Math.floor(Math.random() * 62);
+            key += alphabet[rand];
+        }
+        this.key = key;
     }
 };
 
@@ -65,19 +76,42 @@ app.listen(PORT, () => {
 
 app.post('/newUser', (req, res, next) => {
     const newUser = new User(userList.length);
+    newUser.generateNewKey();
+    for (let i = 0; i < userList.length; i++) {
+        if (newUser.key === userList[i].key) {
+            newUser.generateNewKey();
+            i = 0;
+        }
+    }
     userList.push(newUser);
     res.status(201).send(newUser);
 });
 
 app.get('/users', (req, res, next) => {
-    res.status(200).send(userList);
+    let tempList = [];
+    for (let i = 0; i < userList.length; i++) {
+        const tempUser = {
+            id: userList[i].id,
+        }
+        console.log(tempUser);
+        tempList.push(tempUser);
+    }
+    console.log(tempList);
+    res.status(200).send(tempList);
 })
 
 app.post('/choice', (req, res, next) => {
     const userId = req.body.userId;
     const choice = req.body.choice;
-    userList[userId].choice = choice;
-    res.status(200).send(userList[userId]);
+    const userKey = req.body.userKey;
+    console.log(userKey);
+    console.log(userList[userId]);
+    if (userList[userId].key === userKey) {
+        userList[userId].choice = choice;
+        res.status(200).send(userList[userId]);
+    } else {
+        res.status(404).send();
+    }
 });
 
 app.post('/newMatch', checkMatches, (req, res, next) => {
@@ -102,9 +136,12 @@ app.get('/opponentChoice/:id', (req, res, next) => {
         }
     }
     console.log(opponentId);
-    const opponentData = userList[opponentId];
+    const opponentData = {
+        choice: userList[opponentId].choice
+    }
     if (opponentData.choice) {
-        res.status(200).send(userList[opponentId]);
+        console.log(opponentData);
+        res.status(200).send(opponentData);
     } else {
         res.status(404).send();
     }

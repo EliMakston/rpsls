@@ -10,8 +10,9 @@ let requestBigDiv = document.getElementById("match-request");
 const mainHTML = document.getElementById("main");
 
 //Get the default state of the page
+const choiceFormHTML = choiceForm.innerHTML;
+choiceForm.innerHTML = '';
 const defaultHTML = mainHTML.innerHTML;
-
 //create some temporary holders for buttons that don't yet exist
 let playButton;
 let matchButton;
@@ -23,6 +24,7 @@ let receivingRequests = false;
 let waitingForMatch = false;
 let waitingForMove = false;
 let userId = null;
+let userKey = null;
 const inGame = true;
 
 //add event listeners for the objects that we grabbed
@@ -52,7 +54,6 @@ requestBigDiv.addEventListener( 'click', function ( event ) {
 
 //Sends a POST request to /newUser on the API, then sets the client ID accordingly
 async function newUserRequest(event) {
-    console.log(canReturnHome);
     event.preventDefault();
     if (userId === null) {
         const response = await fetch('/newUser',  {
@@ -61,10 +62,10 @@ async function newUserRequest(event) {
         if (response.ok) {
             const responseObject = await response.json();
             userId = responseObject.id;
+            userKey = responseObject.key;
             log.textContent = `New user created. User id: ${userId}`;
             newUserButton.innerHTML = `Reset Page`;
             canReturnHome = true;
-            console.log(canReturnHome);
         }
     } else {
         log.textContent = `User already created. User id: ${userId}`;
@@ -82,6 +83,7 @@ async function sendUserChoice(event) {
     event.target.value = '';
     const formData = Object.fromEntries(new FormData(event.target).entries());
     formData.userId = userId;
+    formData.userKey = userKey;
     const response = await fetch("/choice", {
         method: "POST",
         body: JSON.stringify(formData),
@@ -94,6 +96,7 @@ async function sendUserChoice(event) {
         log.textContent = `Your choice was succesful: ${responseObject.choice}`;
         //Toggles consistent checks for opponent move
         waitingForMove = true;
+        choiceForm.innerHTML = '';
     } else {
         log.textContent = `Your choice was not succesful`;
     }
@@ -189,6 +192,7 @@ async function checkAllMatches(event) {
                 log.textContent = `You are now in a match with User ID: ${matchObject[i].host}`;
                 usersDiv.innerHTML = ``;
                 waitingForMatch = false;
+                choiceForm.innerHTML = choiceFormHTML;
                 }
             }
         }
@@ -240,6 +244,7 @@ async function getMatchFromRequest(event) {
         usersDiv.innerHTML = ``;
         receivingRequests = false;
         requestBigDiv.innerHTML = ``;
+        choiceForm.innerHTML = choiceFormHTML;
     } else {
         log.textContent = `Matchmaking failed`;
     }
