@@ -10,8 +10,9 @@ let requestBigDiv = document.getElementById("match-request");
 const mainHTML = document.getElementById("main");
 
 //Get the default state of the page
+const choiceFormHTML = choiceForm.innerHTML;
+choiceForm.innerHTML = '';
 const defaultHTML = mainHTML.innerHTML;
-
 //create some temporary holders for buttons that don't yet exist
 let playButton;
 let matchButton;
@@ -95,6 +96,7 @@ async function sendUserChoice(event) {
         log.textContent = `Your choice was succesful: ${responseObject.choice}`;
         //Toggles consistent checks for opponent move
         waitingForMove = true;
+        choiceForm.innerHTML = '';
     } else {
         log.textContent = `Your choice was not succesful`;
     }
@@ -190,6 +192,7 @@ async function checkAllMatches(event) {
                 log.textContent = `You are now in a match with User ID: ${matchObject[i].host}`;
                 usersDiv.innerHTML = ``;
                 waitingForMatch = false;
+                choiceForm.innerHTML = choiceFormHTML;
                 }
             }
         }
@@ -241,6 +244,7 @@ async function getMatchFromRequest(event) {
         usersDiv.innerHTML = ``;
         receivingRequests = false;
         requestBigDiv.innerHTML = ``;
+        choiceForm.innerHTML = choiceFormHTML;
     } else {
         log.textContent = `Matchmaking failed`;
     }
