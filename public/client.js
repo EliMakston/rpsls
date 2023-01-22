@@ -37,7 +37,9 @@ choiceForm.addEventListener("submit", sendUserChoice);
 
 //this adds the temporary event listener for the buttons that don't exist yet
 usersDiv.addEventListener('click', function ( event ) {
+    console.log(`User div was pressed`);
     if(event.target.className === 'play') {
+        console.log('Play button was pressed');
         waitingForMatch = true;
         matchWithUser(event);
     };
@@ -50,6 +52,7 @@ requestBigDiv.addEventListener( 'click', function ( event ) {
 
 //Sends a POST request to /newUser on the API, then sets the client ID accordingly
 async function newUserRequest(event) {
+    console.log(canReturnHome);
     event.preventDefault();
     if (userId === null) {
         const response = await fetch('/newUser',  {
@@ -61,6 +64,7 @@ async function newUserRequest(event) {
             log.textContent = `New user created. User id: ${userId}`;
             newUserButton.innerHTML = `Reset Page`;
             canReturnHome = true;
+            console.log(canReturnHome);
         }
     } else {
         log.textContent = `User already created. User id: ${userId}`;
@@ -239,9 +243,9 @@ async function getMatchFromRequest(event) {
 
 //set all HTML back to homepage
 async function returnToDefault(event) {
-    mainHTML.innerHTML = defaultHTML;
     searchingForPlayer = true;
     receivingRequests = true;
+    mainHTML.innerHTML = defaultHTML;
     newUserButton = document.getElementById("new-user-button");
     log = document.getElementById("log");
     choiceForm = document.getElementById("choice-form");
@@ -250,6 +254,32 @@ async function returnToDefault(event) {
     usersDiv = document.getElementById("users");
     requestDiv = document.getElementById("request-holder");
     requestBigDiv = document.getElementById("match-request");
+    playButton = document.getElementsByClassName("play");
+    matchButton = document.getElementsByClassName("match");
+    //add event listeners for the objects that we grabbed
+    newUserButton.addEventListener("click", function (event) {
+        if (canReturnHome) {
+            returnToDefault(event);
+        } else {
+            newUserRequest(event);
+        }
+    });
+    choiceForm.addEventListener("submit", sendUserChoice);
+
+    //this adds the temporary event listener for the buttons that don't exist yet
+    usersDiv.addEventListener('click', function ( event ) {
+        console.log(`User div was pressed`);
+        if(event.target.className === 'play') {
+            console.log('Play button was pressed');
+            waitingForMatch = true;
+            matchWithUser(event);
+        };
+    });
+    requestBigDiv.addEventListener( 'click', function ( event ) {
+        if(event.target.className === 'match') {
+        getMatchFromRequest(event);
+        };
+    });
 };
 
 //get all updates every 3 seconds (could be faster, but for safety, 3 is cap)
