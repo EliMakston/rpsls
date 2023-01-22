@@ -77,28 +77,41 @@ app.listen(PORT, () => {
 app.post('/newUser', (req, res, next) => {
     const newUser = new User(userList.length);
     newUser.generateNewKey();
-    console.log(newUser.key);
     for (let i = 0; i < userList.length; i++) {
         if (newUser.key === userList[i].key) {
             newUser.generateNewKey();
             i = 0;
-            console.log(newUser.key);
         }
     }
     userList.push(newUser);
-    console.log(userList);
     res.status(201).send(newUser);
 });
 
 app.get('/users', (req, res, next) => {
-    res.status(200).send(userList);
+    let tempList = [];
+    for (let i = 0; i < userList.length; i++) {
+        const tempUser = {
+            id: userList[i].id,
+        }
+        console.log(tempUser);
+        tempList.push(tempUser);
+    }
+    console.log(tempList);
+    res.status(200).send(tempList);
 })
 
 app.post('/choice', (req, res, next) => {
     const userId = req.body.userId;
     const choice = req.body.choice;
-    userList[userId].choice = choice;
-    res.status(200).send(userList[userId]);
+    const userKey = req.body.userKey;
+    console.log(userKey);
+    console.log(userList[userId]);
+    if (userList[userId].key === userKey) {
+        userList[userId].choice = choice;
+        res.status(200).send(userList[userId]);
+    } else {
+        res.status(404).send();
+    }
 });
 
 app.post('/newMatch', checkMatches, (req, res, next) => {
@@ -123,9 +136,12 @@ app.get('/opponentChoice/:id', (req, res, next) => {
         }
     }
     console.log(opponentId);
-    const opponentData = userList[opponentId];
+    const opponentData = {
+        choice: userList[opponentId].choice
+    }
     if (opponentData.choice) {
-        res.status(200).send(userList[opponentId]);
+        console.log(opponentData);
+        res.status(200).send(opponentData);
     } else {
         res.status(404).send();
     }

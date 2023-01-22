@@ -23,6 +23,7 @@ let receivingRequests = false;
 let waitingForMatch = false;
 let waitingForMove = false;
 let userId = null;
+let userKey = null;
 const inGame = true;
 
 //add event listeners for the objects that we grabbed
@@ -52,7 +53,6 @@ requestBigDiv.addEventListener( 'click', function ( event ) {
 
 //Sends a POST request to /newUser on the API, then sets the client ID accordingly
 async function newUserRequest(event) {
-    console.log(canReturnHome);
     event.preventDefault();
     if (userId === null) {
         const response = await fetch('/newUser',  {
@@ -61,10 +61,10 @@ async function newUserRequest(event) {
         if (response.ok) {
             const responseObject = await response.json();
             userId = responseObject.id;
+            userKey = responseObject.key;
             log.textContent = `New user created. User id: ${userId}`;
             newUserButton.innerHTML = `Reset Page`;
             canReturnHome = true;
-            console.log(canReturnHome);
         }
     } else {
         log.textContent = `User already created. User id: ${userId}`;
@@ -82,6 +82,7 @@ async function sendUserChoice(event) {
     event.target.value = '';
     const formData = Object.fromEntries(new FormData(event.target).entries());
     formData.userId = userId;
+    formData.userKey = userKey;
     const response = await fetch("/choice", {
         method: "POST",
         body: JSON.stringify(formData),
