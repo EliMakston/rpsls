@@ -206,9 +206,10 @@ app.get('/winOrLose/:id', (req, res, next) => {
 
 app.delete('/requests/:Opponentid', (req, res, next) => {
     const OpponentId = Number(req.params.Opponentid);
+    const ownId = Number(req.query.id);
     let index;
     for (let i = 0; i < requestList.length; i++) {
-        if (requestList[i].opponent === OpponentId) {
+        if (requestList[i].opponent === OpponentId && requestList[i].host === ownId) {
             index = requestList.id;
         }
     }
@@ -216,6 +217,33 @@ app.delete('/requests/:Opponentid', (req, res, next) => {
     console.log(requestList);
     res.status(204).send();
 });
+
+app.delete('/match/:id', (req, res, next) => {
+    const id = Number(req.params.id);
+    let index = undefined;
+    console.log(id);
+    console.log(matchList);
+    for (let i = 0; i < matchList.length; i++) {
+        console.log(matchList[i]);
+        if (matchList[i].host === id) {
+            index = matchList[i].id;
+            const opId = matchList.opponent;
+            for(let z = 0; z < userList.length; z++) {
+                if (userList[z].id === id) {
+                    userList[z].choice = undefined;
+                }
+                if (userList[z].id === opId) {
+                    userList[z].choice = undefined;
+                }
+            }
+        }
+    }
+    if (index != undefined) {
+        matchList.splice(index, 1);
+        console.log(matchList);
+    }
+    res.status(204).send();
+})
 
 app.get('/', (req, res, next) => {
     res.sendFile('client.html', {root: __dirname });

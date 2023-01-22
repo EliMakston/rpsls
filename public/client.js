@@ -206,6 +206,10 @@ async function winOrLose(playerId) {
         let string = await response.text();
         log.textContent = string;
     }
+    await sleep(4000);
+    await fetch(`/match/${userId}?opponentId=${userId}`, {
+        method: 'DELETE'
+    });
 };
 
 //create a match based off of a request
@@ -214,7 +218,7 @@ async function getMatchFromRequest(event) {
     searchingForPlayer = false;
     const OpponentID = event.target.id;
     const OpponentIDParsed = OpponentID.toString().substr(0, OpponentID.length-1);
-    await fetch(`/requests/${OpponentIDParsed}`, {
+    await fetch(`/requests/${OpponentIDParsed}?id=${userId}`, {
         method: 'DELETE'
     });
     const bodyData = {
