@@ -14,6 +14,17 @@ class User {
         this.id = id;
         this.choice = undefined;
         this.hasChosen = false;
+        this.key = undefined;
+    }
+    generateNewKey() {
+        const keyLength = 10;
+        const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+        let key = '';
+        for (let i = 0; i < keyLength; i++) {
+            const rand = Math.floor(Math.random() * 62);
+            key += alphabet[rand];
+        }
+        this.key = key;
     }
 };
 
@@ -65,7 +76,17 @@ app.listen(PORT, () => {
 
 app.post('/newUser', (req, res, next) => {
     const newUser = new User(userList.length);
+    newUser.generateNewKey();
+    console.log(newUser.key);
+    for (let i = 0; i < userList.length; i++) {
+        if (newUser.key === userList[i].key) {
+            newUser.generateNewKey();
+            i = 0;
+            console.log(newUser.key);
+        }
+    }
     userList.push(newUser);
+    console.log(userList);
     res.status(201).send(newUser);
 });
 
