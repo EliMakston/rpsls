@@ -198,43 +198,43 @@ app.get('/winOrLose/:id', (req, res, next) => {
     }
     if (playerChoice === 'Rock') {
         if (opponentChoice === 'Scissors' || opponentChoice === 'Lizard') {
-            res.status(200).send(`You won`);
+            res.status(200).send(`You won. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Paper' || opponentChoice === 'Spock') {
-            res.status(200).send(`You lost`);
+            res.status(200).send(`You lost. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Rock') {
-            res.status(200).send(`You tie`);
+            res.status(200).send(`You tie. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         }
     } else if (playerChoice === 'Paper') {
         if (opponentChoice === 'Rock' || opponentChoice === 'Spock') {
-            res.status(200).send(`You won`);
+            res.status(200).send(`You won. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Scissors' || opponentChoice === 'Lizard') {
-            res.status(200).send(`You lost`);
+            res.status(200).send(`You lost. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Paper') {
-            res.status(200).send(`You tie`);
+            res.status(200).send(`You tie. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         }
     } else if (playerChoice === 'Scissors') {
         if (opponentChoice === 'Paper' || opponentChoice === 'Lizard') {
-            res.status(200).send(`You won`);
+            res.status(200).send(`You won. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Rock' || opponentChoice === 'Spock') {
-            res.status(200).send(`You lost`);
+            res.status(200).send(`You lost. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Scissors') {
-            res.status(200).send(`You tie`);
+            res.status(200).send(`You tie. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         }
     } else if (playerChoice === 'Spock') {
         if (opponentChoice === 'Scissors' || opponentChoice === 'Rock') {
-            res.status(200).send(`You won`);
+            res.status(200).send(`You won. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Paper' || opponentChoice === 'Lizard') {
-            res.status(200).send(`You lost`);
+            res.status(200).send(`You lost. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Spock') {
-            res.status(200).send(`You tie`);
+            res.status(200).send(`You tie. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         }
     } else if (playerChoice === 'Lizard') {
         if (opponentChoice === 'Paper' || opponentChoice === 'Spock') {
-            res.status(200).send(`You won`);
+            res.status(200).send(`You won. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Rock' || opponentChoice === 'Scissors') {
-            res.status(200).send(`You lost`);
+            res.status(200).send(`You lost. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         } else if (opponentChoice === 'Lizard') {
-            res.status(200).send(`You tie`);
+            res.status(200).send(`You tie. You chose ${playerChoice}, and your opponent chose ${opponentChoice}.`);
         }
     } else {
         res.status(400).send(`Something failed`);
