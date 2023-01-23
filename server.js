@@ -66,6 +66,15 @@ function checkMatches(req, res, next) {
     }
 }
 
+function turnIndexIntoId(list, id) {
+    for(let i = 0; i < list.lengt; i++) {
+        if (list[i].id === id) {
+            req.index = i;
+        }
+    }
+    next();
+}
+
 const userList = [];
 const matchList = [];
 const requestList = [];
@@ -75,7 +84,14 @@ app.listen(PORT, () => {
 });
 
 app.post('/newUser', (req, res, next) => {
-    const newUser = new User(userList.length);
+    let tempId = 0;
+    for (let i = 0; i < userList.length; i++) {
+        if (userList[i].id === tempId) {
+            tempId++
+            i = 0;
+        }
+    }
+    const newUser = new User(tempId);
     newUser.generateNewKey();
     for (let i = 0; i < userList.length; i++) {
         if (newUser.key === userList[i].key) {
@@ -90,11 +106,13 @@ app.post('/newUser', (req, res, next) => {
 app.get('/users', (req, res, next) => {
     let tempList = [];
     for (let i = 0; i < userList.length; i++) {
-        const tempUser = {
-            id: userList[i].id,
+        if (userList[i].id != null) {
+            const tempUser = {
+                id: userList[i].id,
+            }
+            console.log(tempUser);
+            tempList.push(tempUser);
         }
-        console.log(tempUser);
-        tempList.push(tempUser);
     }
     console.log(tempList);
     res.status(200).send(tempList);
@@ -115,7 +133,14 @@ app.post('/choice', (req, res, next) => {
 });
 
 app.post('/newMatch', checkMatches, (req, res, next) => {
-    const newMatch = new Match(matchList.length, req.hostID, req.opponent);
+    let newMatchID = 0;
+    for (let i = 0; i < matchList.length; i++) {
+        if (matchList[i].id === newMatchID) {
+            newMatchID++;
+            i = 0;
+        }
+    }
+    const newMatch = new Match(newMatchID, req.hostID, req.opponent);
     matchList.push(newMatch);
     res.status(201).send(newMatch);
 });
@@ -135,9 +160,15 @@ app.get('/opponentChoice/:id', (req, res, next) => {
             opponentId = matchList[i].host;
         }
     }
+    let index;
     console.log(opponentId);
+    for (let i = 0; i < userList.length; i++) {
+        if (userList[i].id === opponentId) {
+            index = i;
+        }
+    }
     const opponentData = {
-        choice: userList[opponentId].choice
+        choice: userList[index].choice
     }
     if (opponentData.choice) {
         console.log(opponentData);
@@ -148,23 +179,15 @@ app.get('/opponentChoice/:id', (req, res, next) => {
 });
 
 app.post('/newRequest', checkMatches, (req, res, next) => {
-    let newRequestID;
-    if (requestList.length === 0) {
-        newRequestID = 0;
-    } else {
-        if (requestList.length - 1 === (requestList[requestList.length-1].id)) {
-            newRequestID = requestList.length;
-        } else {
-            for (let i = 0; i < requestList.length; i++) {
-                if (requestList[i].id != i) {
-                    newRequestID = i;
-                    break;
-                }
-            }
+    let newRequestID = 0;
+    for (let i = 0; i < requestList.length; i++) {
+        if (requestList[i].id === newRequestID) {
+            newRequestID++;
+            i = 0;
         }
     }
     const newRequest = new Request(newRequestID, req.hostID, req.opponent);
-    requestList.splice(newRequestID, 0, newRequest);
+    requestList.push(newRequest);
     console.log(requestList);
     res.status(201).send(newRequest);
 });
@@ -280,7 +303,23 @@ app.delete('/match/:id', (req, res, next) => {
         console.log(matchList);
     }
     res.status(204).send();
-})
+});
+
+app.delete('/user/:id', (req, res, next) => {
+    let index;
+    for (let i = 0; i < userList.length; i++) {
+        if (userList[i].id === Number(req.params.id)) {
+            index = i;
+        }
+    }
+    if (userList[index].key === req.body.userKey) {
+        userList.splice(index, 1);
+        console.log(userList);
+        res.status(204).send();
+    } else {
+        res.status(404).send();
+    }
+});
 
 app.get('/', (req, res, next) => {
     res.sendFile('client.html', {root: __dirname });

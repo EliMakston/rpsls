@@ -111,7 +111,7 @@ async function getAllUsers(event) {
     for (let i = 0; i < responseObject.length; i++) {
         string += `User- ID: ${responseObject[i].id}`;
         if (i != userId) {
-            string += `<button id = '${i}' class="play">Play</button>`;
+            string += `<button id = '${responseObject[i].id}' class="play">Play</button>`;
         }
         string += `<br>`
     }
@@ -172,7 +172,7 @@ async function getAllRequests(event) {
         string = '';
         for (let i = 0; i < matchObject.length; i++) {
             if (matchObject[i].opponent === userId) {
-                string += `<p>You have a new request: from User ${matchObject[i].host}<button id=${matchObject[i].host}0 class='match'>Match</button></p><br>`;
+                string += `<p>You have a new request: from User ${matchObject[i].host}<button id=${matchObject[i].host}x class='match'>Match</button></p><br>`;
                 matchButton = document.getElementsByClassName("match");
                 }
             }
@@ -265,6 +265,7 @@ async function returnToDefault(event) {
     requestBigDiv = document.getElementById("match-request");
     playButton = document.getElementsByClassName("play");
     matchButton = document.getElementsByClassName("match");
+    newUserButton.innerHTML = `Reset Page`;
     //add event listeners for the objects that we grabbed
     newUserButton.addEventListener("click", function (event) {
         if (canReturnHome) {
@@ -289,6 +290,7 @@ async function returnToDefault(event) {
         getMatchFromRequest(event);
         };
     });
+
 };
 
 //get all updates every 3 seconds (could be faster, but for safety, 3 is cap)
@@ -312,4 +314,17 @@ async function consistentUpdates(event) {
             checkAllMatches(event);
         }
     }
+};
+
+window.onunload = function () {
+    const bodyData = {
+        userKey: userKey
+    }
+    fetch(`/user/${userId}`, {
+        method: 'DELETE',
+        body: JSON.stringify(bodyData),
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
 }
