@@ -2,11 +2,15 @@
 <html>
     <head>
         <title>RPSLS Client</title>
+        <link href="./client.css" rel="stylesheet">
     </head>
     <div id="main">
+        <div id="heading">
+            Rock Paper Scissors Lizard Spock
+        </div>
         <div id="new-user">
-            <button id="new-user-button">New User</button>
-            <p id = "log">Welcome to Rock, Paper, Scissors, Lizard, Spock!</p>
+            <button id="new-user-button" class="hover_button">New User</button>
+            <p id="log"></p>
         </div>
         <div id="choice-div">
             <form id="choice-form">
@@ -21,11 +25,14 @@
             </form>
         </div>
         <div id="users">
-            <div id="users-response"></div>
+            Users Online:
+            <div id="users-response">
+            </div>
         </div>
         <div id="match-request">
-            <h1>Requests:</h1>
-            <div id="request-holder"></div>
+            Requests:
+            <div id="request-holder">
+            </div>
         </div>
     </div>
     <script src="/client.js"></script>
