@@ -40,14 +40,14 @@ choiceForm.addEventListener("submit", sendUserChoice);
 //this adds the temporary event listener for the buttons that don't exist yet
 usersDiv.addEventListener('click', function ( event ) {
     console.log(`User div was pressed`);
-    if(event.target.className === 'play') {
+    if(event.target.className === 'play hover_button') {
         console.log('Play button was pressed');
         waitingForMatch = true;
         matchWithUser(event);
     };
 });
 requestBigDiv.addEventListener( 'click', function ( event ) {
-    if(event.target.className === 'match') {
+    if(event.target.className === 'match hover_button') {
       getMatchFromRequest(event);
     };
 });
