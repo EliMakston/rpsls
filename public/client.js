@@ -40,14 +40,14 @@ choiceForm.addEventListener("submit", sendUserChoice);
 //this adds the temporary event listener for the buttons that don't exist yet
 usersDiv.addEventListener('click', function ( event ) {
     console.log(`User div was pressed`);
-    if(event.target.className === 'play') {
+    if(event.target.className === 'play hover_button') {
         console.log('Play button was pressed');
         waitingForMatch = true;
         matchWithUser(event);
     };
 });
 requestBigDiv.addEventListener( 'click', function ( event ) {
-    if(event.target.className === 'match') {
+    if(event.target.className === 'match hover_button') {
       getMatchFromRequest(event);
     };
 });
@@ -109,11 +109,11 @@ async function getAllUsers(event) {
     const responseObject = await response.json();
     let string = '';
     for (let i = 0; i < responseObject.length; i++) {
-        string += `User- ID: ${responseObject[i].id}`;
+        string += `<p>User- ID: ${responseObject[i].id}`;
         if (i != userId) {
-            string += `<button id = '${responseObject[i].id}' class="play">Play</button>`;
+            string += `<button id = '${responseObject[i].id}' class="play hover_button">Play</button>`;
         }
-        string += `<br>`
+        string += `</p>`
     }
     htmlRepsonse.innerHTML = string;
     playButton = document.getElementsByClassName("play");
@@ -172,7 +172,7 @@ async function getAllRequests(event) {
         string = '';
         for (let i = 0; i < matchObject.length; i++) {
             if (matchObject[i].opponent === userId) {
-                string += `<p>You have a new request: from User ${matchObject[i].host}<button id=${matchObject[i].host}x class='match'>Match</button></p><br>`;
+                string += `<p>from User ${matchObject[i].host}<button id=${matchObject[i].host}x class='match hover_button'>Match</button></p>`;
                 matchButton = document.getElementsByClassName("match");
                 }
             }
