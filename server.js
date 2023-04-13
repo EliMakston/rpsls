@@ -11,6 +11,15 @@ const io = new Server(server);
 
 const PORT = 5000;
 
+class User {
+    constructor(socketId) {
+        this.id = socketId;
+        this.nick = 'User';
+    }
+};
+
+const userList = [];
+
 app.use(express.static(__dirname + '/public'));
 app.use(morgan('short'));
 
@@ -22,9 +31,29 @@ app.get('/', (req, res) => {
 
 });
 
-io.on('connection', (socket) => {
+async function getUserInfo() {
+    const sockets = await io.fetchSockets();
+    const userInfo = [];
+    for (let i = 0; i < sockets.length; i++) {
+        const newUser = {
+            id: sockets[i].id,
+            nick: sockets[i].nick,
+            room: sockets[i].rooms
+        }
+        userInfo.push(newUser);
+    }
+    return userInfo;
+}
+
+io.on('connection', async (socket) => {
+    const userInfo = getUserInfo();
+    socket.join("lobby");
+    socket.nick = 'User';
     console.log(`New connection`);
     socket.on('disconnect', () => {
-        console.log(`User disconnected`);
+        console.log(`${socket.nick} disconnected`);
+    });
+    socket.on("new nick", (newNick) => {
+        socket.nick = newNick;
     });
 });
